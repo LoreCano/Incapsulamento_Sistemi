@@ -31,7 +31,7 @@ struct Frame {
 	string dst; // 6B
 	string src; // 6B
 	string type; //2B
-	Datagram datagram; // Variable Length
+	string datagram; // Variable Length
 	string fcs; // 4B
 };
 
@@ -58,14 +58,17 @@ string intToBin(int n, int dim);
 //funzione per calcolcolare l'header checksum
 string calculateHc(Datagram ip);
 
-//funzione per definire il type of service
-string getTos();
-
 //funzione per impostare il datagram
-void setDatagram(Datagram &  ip);
+void setDatagram(Datagram & ip);
 
 //funzione per convertire il datagramma in binario
 string datagramToBin(Datagram ip);
 
-#endif
+//funzione per calcolare il CRC
+string calculateCRC(Datagram ip);
 
+//funzione per impostare il frame 
+void setFrame(Frame & ethernet, string ip);
+
+
+#endif
