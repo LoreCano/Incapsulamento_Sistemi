@@ -19,7 +19,7 @@ struct Datagram {
 	string hc; //2B Header checksum
 	string sia; //4B Source Ip address
 	string dia; //4B Destination Ip address
-	//string option; //Variable Length
+	string option; //Variable Length
 	//string padding; //Variable Length
 	string message; //Variable Length
 };
@@ -69,6 +69,9 @@ string calculateCRC(Datagram ip);
 
 //funzione per impostare il frame 
 void setFrame(Frame & ethernet, string ip);
+
+//funzione per convertire il frame in binario
+string frameToBin(Frame ethernet);
 
 
 #endif
