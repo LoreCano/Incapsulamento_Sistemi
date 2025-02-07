@@ -154,92 +154,11 @@ string calculateHc(Datagram ip) {
 }
 
 
-//funzione per definire il type of service
-string getTos(){
-
-    //dichiaro e inizializzo le variabili tos, prec e scelta
-    string tos = "";
-    int prec;
-    char scelta;
-
-    cout<<"Set Type Of Service:\n\n";
-
-    //prendo in input il numero di precedenza
-    do{
-        cout<<"Select a precedence writing a number between 0 and 7: ";
-        cin>>prec;
-        if(prec < 0 || prec > 7){
-            cerr<<"Wrong number\n";
-        }
-    }while(prec < 0 || prec > 7);
-    
-    //concateno il binario del numero a tos
-    tos += intToBin(prec, 3);
-    
-    //setto il flag delay
-    do{
-        cout<<"Do you want to set the delay flag? (y/n): ";
-        cin>>scelta;
-        if(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y'){
-            cerr<<"Wrong choise\n";
-        }
-    }while(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y');
-    
-    //in base alla scelta concateno 1 o 0 a tos
-    if(scelta == 'y' || scelta == 'Y') tos += '1';
-    if(scelta == 'n' || scelta == 'N') tos += '0';
-    
-    //setto il flag troughput
-    do{
-        cout<<"Do you want to set the troughput flag? (y/n): ";
-        cin>>scelta;
-        if(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y'){
-            cerr<<"Wrong choise\n";
-        }
-    }while(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y');
-    
-    //in base alla scelta concateno 1 o 0 a tos
-    if(scelta == 'y' || scelta == 'Y') tos += '1';
-    if(scelta == 'n' || scelta == 'N') tos += '0';
-    
-    //setto il flag reliability
-    do{
-        cout<<"Do you want to set the reliability flag? (y/n): ";
-        cin>>scelta;
-        if(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y'){
-            cerr<<"Wrong choise\n";
-        }
-    }while(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y');
-    
-    //in base alla scelta concateno 1 o 0 a tos
-    if(scelta == 'y' || scelta == 'Y') tos += '1';
-    if(scelta == 'n' || scelta == 'N') tos += '0';
-    
-    //setto il flag monetary cost
-    do{
-        cout<<"Do you want to set the monetary cost flag? (y/n): ";
-        cin>>scelta;
-        if(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y'){
-            cerr<<"Wrong choise\n";
-        }
-    }while(scelta != 'y' && scelta != 'n' && scelta != 'N' && scelta != 'Y');
-    
-    //in base alla scelta concateno 1 o 0 a tos
-    if(scelta == 'y' || scelta == 'Y') tos += '1';
-    if(scelta == 'n' || scelta == 'N') tos += '0';
-    
-    //concateno 0 a tos perche' l'ultimo bit e' inutilizzato
-    tos += '0';
-    
-    //restituisco la stringa binaria di type of service
-    return tos;
-}
-
 //funzione per impostare il datagram
-void setDatagram(Datagram &  ip){
+void setDatagram(Datagram & ip){
     
     //apro e controllo il canale di comunicazione con il file di configurazione
-    ifstream fin("configuration.txt");
+    ifstream fin("configurationDatagram.txt");
     if (!fin) {
         cerr << "Errore nell'apertura del file di configurazione\n";
         exit(1);
@@ -290,7 +209,6 @@ void setDatagram(Datagram &  ip){
     }
     
     //riempio i restanti campi della struct che non posso riempire con il file di configurazione
-    ip.tos = getTos();
     ip.hc = calculateHc(ip);
     ip.message = stringToBin(readFile("msg.txt"));
 
@@ -318,6 +236,96 @@ string datagramToBin(Datagram ip){
           ip.sia + 
           ip.dia +
           ip.message;
+
+    //restituisco la stringa binaria del datagramma
+    return str;
+}
+
+//codice fornito dal professore fatto da chat gpt per il calcolo del CRC
+string calculateCRC(string ip){
+    unsigned short crc = 0xFFFF;
+    const unsigned short POLY = 0x1021;
+    for (unsigned char c : ip) {
+        crc ^= (c << 8);
+        for (int i = 0; i < 8; i++) {
+            if (crc & 0x8000) crc = (crc << 1) ^ POLY;
+            else crc <<= 1;
+        }
+    }
+    return intToBin(crc, 32);
+}
+
+void setFrame(Frame & ethernet, string ip){
+    
+    //apro e controllo il canale di comunicazione con il file di configurazione
+    ifstream fin("configurationFrame.txt");
+        if (!fin) {
+            cerr << "errore nell'apertura del file di configurazione";
+            exit(1);
+        }
+        
+     //dichiaro le variabili str(riga del file), bin(stringa binaria) e field(nome del campo)
+    string str, bin , field ;
+
+    //dichiaro una variabile booleana
+    bool boolean ;
+    
+    //prendo in input tutte le righe del file
+    while(getline(fin, str)){
+
+        //pulisco le variabili boolean field e bin
+        boolean = 0;
+        field = "";
+        bin = "";
+
+        //per ogni riga separo il nome del campo dalla corrispettiva stringa binaria tramite il separatore(:)
+        for(int j = 0; j < str.size(); j++){
+
+            if(str[j] == ':'){
+                boolean = 1;
+                j++;
+            }
+
+            if(!boolean){
+                field += str[j];
+            } else {
+                if(str[j] != '\r' && str[j] != '\n'){
+                    bin += str[j];
+                }
+            }
+        }
+        
+        //in base a com'è field riempo il campo della struct corrispondente
+        if (field == "preamble") ethernet.preamble = bin;
+        else if (field == "sfd") ethernet.sfd = bin;
+        else if (field == "dst") ethernet.dst = bin;
+        else if (field == "src") ethernet.src = bin;
+        else if (field == "type") ethernet.type = bin;
+                     
+    }
+    
+    //riempio i restanti campi della struct che non posso riempire con il file di configurazione
+    ethernet.fcs = calculateCRC(ip);
+    ethernet.datagram = ip;
+
+    //chiudo il canale di comunicazione
+    fin.close();
+}
+
+//funzione per convertire il frame in binario
+string frameToBin(Frame ethernet){
+
+    //dichiaro e inizializzo la variabile str
+    string str = "";
+
+    //concateno a str tutti i campi della struct
+    str = ethernet.preamble + 
+          ethernet.sfd + 
+          ethernet.dst + 
+          ethernet.src + 
+          ethernet.type +
+          ethernet.datagram +
+          ethernet.fcs;
 
     //restituisco la stringa binaria del datagramma
     return str;
