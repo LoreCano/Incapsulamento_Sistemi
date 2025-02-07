@@ -209,6 +209,7 @@ void setDatagram(Datagram & ip){
     }
     
     //riempio i restanti campi della struct che non posso riempire con il file di configurazione
+    ip.option = "00000000";
     ip.hc = calculateHc(ip);
     ip.message = stringToBin(readFile("msg.txt"));
 
