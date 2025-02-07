@@ -15,11 +15,16 @@ int main(){
     //inizializzo la struct Datagram presente in funzioni.h
     Datagram ip;
 
-    //riempio tutti i campi della struct
-    setDatagram( ip);
+    Frame ethernet;
+    
+    //riempio tutti i campi della struct Datagram
+    setDatagram(ip);
 
-    //scrivo tutto il datagramma in binario nel file frame.txt
-    writeFile(datagramToBin(ip), "frame.txt");
+    //riempo tutti i campi della struct Frame
+    setFrame(ethernet, datagramToBin(ip));
+	
+    //scrivo tutto il frame in binario nel file frame.txt
+    writeFile(frameToBin(ethernet), "frame.txt");
 
 	return 0;
 }
