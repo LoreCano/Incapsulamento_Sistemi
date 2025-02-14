@@ -129,8 +129,7 @@ string calculateHc(Datagram ip) {
     unsigned long sum = 0;
 
     // Sommare i campi dell'header IP, trattandoli come valori a 16 bit
-    sum += binToInt(ip.version + ip.hlen);
-    sum += binToInt(ip.tos);
+    sum += binToInt(ip.version + ip.hlen + ip.tos);
     sum += binToInt(ip.tl);
     sum += binToInt(ip.id);
     sum += binToInt(ip.flags + ip.fo);
