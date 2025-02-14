@@ -125,33 +125,30 @@ string intToBin(int n, int dim){
 }
 
 
-//funzione per calcolcolare l'header checksum
 string calculateHc(Datagram ip) {
-
-    //dichiaro e inizializzo la variabile sum
     unsigned long sum = 0;
 
-    //sommo tutti i campi dell'header IP (non considero header checksum perche' settato a 0)
-    sum = binToInt(ip.version) + 
-          binToInt(ip.hlen) + 
-          binToInt(ip.tos) + 
-          binToInt(ip.tl) + 
-          binToInt(ip.id) + 
-          binToInt(ip.flags) + 
-          binToInt(ip.fo) + 
-          binToInt(ip.ttl) + 
-          binToInt(ip.protocol) + 
-          binToInt(ip.sia.substr(0, 16)) + binToInt(ip.sia.substr(16, 16)) + 
-          binToInt(ip.dia.substr(0, 16)) + binToInt(ip.dia.substr(16, 16));
+    // Sommare i campi dell'header IP, trattandoli come valori a 16 bit
+    sum += binToInt(ip.version + ip.hlen);
+    sum += binToInt(ip.tos);
+    sum += binToInt(ip.tl);
+    sum += binToInt(ip.id);
+    sum += binToInt(ip.flags + ip.fo);
+    sum += binToInt(ip.ttl + ip.protocol);
+    sum += binToInt(ip.sia.substr(0, 16));
+    sum += binToInt(ip.sia.substr(16, 16));
+    sum += binToInt(ip.dia.substr(0, 16));
+    sum += binToInt(ip.dia.substr(16, 16));
 
-    //correggo l'overflow a 16 bit
+    // Gestire il carry a 16 bit finché necessario
     while (sum > 0xFFFF) {
         sum = (sum & 0xFFFF) + (sum >> 16);
     }
 
-    //restituisco il complemento a 1 di sum su 16 bit
+    // Complemento a uno e conversione in binario
     return intToBin(~sum & 0xFFFF, 16);
 }
+
 
 
 //funzione per impostare il datagram
