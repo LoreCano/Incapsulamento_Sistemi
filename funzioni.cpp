@@ -199,6 +199,7 @@ void setDatagram(Datagram & ip){
         if (field == "version") ip.version = bin;
         else if (field == "hlen") ip.hlen = bin;
         else if (field == "tl") ip.tl = bin;
+        else if (field == "tos") ip.tos= bin;
         else if (field == "id") ip.id = bin;
         else if (field == "flags") ip.flags = bin;
         else if (field == "fo") ip.fo = bin;
@@ -209,7 +210,7 @@ void setDatagram(Datagram & ip){
     }
     
     //riempio i restanti campi della struct che non posso riempire con il file di configurazione
-    ip.option = "00000000";
+    //ip.option = "00000000";
     ip.hc = calculateHc(ip);
     ip.message = stringToBin(readFile("msg.txt"));
 
@@ -299,8 +300,8 @@ void setFrame(Frame & ethernet, string ip){
         //in base a com'è field riempo il campo della struct corrispondente
         if (field == "preamble") ethernet.preamble = bin;
         else if (field == "sfd") ethernet.sfd = bin;
-        else if (field == "dst") ethernet.dst = bin;
-        else if (field == "src") ethernet.src = bin;
+        else if (field == "da") ethernet.dst = bin;
+        else if (field == "sa") ethernet.src = bin;
         else if (field == "type") ethernet.type = bin;
                      
     }
