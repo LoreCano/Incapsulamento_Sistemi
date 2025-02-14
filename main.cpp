@@ -25,6 +25,8 @@ int main(){
 	
     //scrivo tutto il frame in binario nel file frame.txt
     writeFile(frameToBin(ethernet), "frame.txt");
+    
+    cout<<ethernet.sfd;
 
 	return 0;
 }
