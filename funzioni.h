@@ -19,7 +19,7 @@ struct Datagram {
 	string hc; //2B Header checksum
 	string sia; //4B Source Ip address
 	string dia; //4B Destination Ip address
-	string option; //Variable Length
+	//string option; //Variable Length
 	//string padding; //Variable Length
 	string message; //Variable Length
 };
